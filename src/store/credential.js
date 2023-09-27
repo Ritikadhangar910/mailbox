@@ -1,10 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 function getItems() {
-  let token = localStorage.getItem("token");
-  return token;
+  let obj = localStorage.getItem("token");
+  if (!obj) {
+    return;
+  }
+  obj = JSON.parse(obj);
+  return obj;
 }
+function getToken() {
+  let obj = getItems();
+  if (!obj) {
+    return "";
+  } else {
+    return obj.token;
+  }
+}
+function getEmail() {
+  let obj = getItems();
+  if (!obj) {
+    return "";
+  } else {
+    return obj.email;
+  }
+}
+
 function checkToken() {
-  if (getItems === "") {
+  if (getToken === "") {
     return false;
   } else {
     return true;
@@ -13,6 +34,7 @@ function checkToken() {
 const initialCrential = {
   token: getItems(),
   isloggedIn: checkToken(),
+  email: getEmail(),
 };
 const creadentailSlice = createSlice({
   name: "credential",

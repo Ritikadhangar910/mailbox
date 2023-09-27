@@ -69,7 +69,11 @@ function Auth() {
         seterrAuth(true);
         seterrAuthmsg("invalid Credential");
       } else {
-        localStorage.setItem("token", response.data.idToken);
+        const obj = {
+          token: response.data.idToken,
+          email: response.data.email,
+        };
+        localStorage.setItem("token", JSON.stringify(obj));
         dispatch(creadentailAction.setToken(response.data.idToken));
         navigate("/");
         console.log("user successfully logged in");

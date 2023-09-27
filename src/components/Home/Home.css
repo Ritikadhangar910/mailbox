@@ -1,0 +1,45 @@
+.emailbox h2 {
+  padding-top: 10px;
+  text-align: center;
+}
+.emailbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.forwidth {
+  width: 700px;
+}
+.mail-box {
+  padding-top: 30px;
+}
+.text-email {
+  display: block;
+  border-bottom: 0.07rem solid #000;
+  margin-bottom: 15px;
+}
+.email-body {
+  margin-left: 10px;
+  border: 1px solid;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+.email-body img {
+  margin-bottom: 3px;
+}
+.text-email1 {
+  position: relative;
+}
+.text-email2 {
+  position: absolute;
+  top: 143px;
+  right: 335px;
+}
+.sendbtn {
+  background-color: #0b5ed7;
+  padding-left: 30px;
+  padding-right: 30px;
+  border: 1px solid #0b5ed7;
+  color: white;
+}
