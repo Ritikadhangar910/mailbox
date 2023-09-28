@@ -24,6 +24,7 @@ function Mynavbar() {
             {isloggedIn ? (
               <>
                 <Nav.Link href="/">Home</Nav.Link>
+                <Nav.Link href="/allmails">All mails</Nav.Link>
                 <Button variant="primary" onClick={logoutHandler}>
                   logout
                 </Button>
