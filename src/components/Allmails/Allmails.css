@@ -5,3 +5,15 @@
   border: 1px solid #0b5ed7;
   color: white;
 }
+.text-with-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+.setcursor {
+  cursor: pointer;
+}
+.golden-text {
+  color: goldenrod;
+}
