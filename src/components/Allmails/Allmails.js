@@ -7,6 +7,7 @@ import Table from "react-bootstrap/Table";
 import { useNavigate, Link } from "react-router-dom";
 import { getAllmails } from "../../store/UIshow";
 import { UIshowaction } from "../../store/UIshow";
+import Button from "react-bootstrap/Button";
 import axios from "axios";
 import "./Allmails.css";
 const Allmails = () => {
@@ -14,6 +15,7 @@ const Allmails = () => {
   let allmails = useSelector((state) => state.UIshow.Allmails);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   useEffect(() => {
     let mail = email.replace(/[@.]/g, "");
     dispatch(getAllmails(mail));
@@ -53,6 +55,26 @@ const Allmails = () => {
     objCopy.showstar = false;
     copyAllmails[getMail] = objCopy;
     dispatch(UIshowaction.Hideshowstar(copyAllmails));
+  }
+  async function deleteMail(id) {
+    let mail = email.replace(/[@.]/g, "");
+    try {
+      let response = await axios.delete(
+        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/data/${id}.json`
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+      } else {
+        console.log("Error is", response.data);
+      }
+    } catch (err) {
+      console.log("Error is", err);
+    }
+    const copyAllmails = [...allmails];
+    const getMail = copyAllmails.filter((email) => {
+      return email.id !== id;
+    });
+    dispatch(UIshowaction.Hideshowstar(getMail));
   }
   return (
     <>
@@ -98,6 +120,14 @@ const Allmails = () => {
                       >
                         {item.email}
                       </Link>
+                    </td>
+                    <td style={{ border: "none" }}>
+                      <Button
+                        variant="danger"
+                        onClick={() => deleteMail(item.id)}
+                      >
+                        Delete
+                      </Button>
                     </td>
                   </tr>
                 ))}
