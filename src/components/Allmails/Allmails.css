@@ -17,3 +17,15 @@
 .golden-text {
   color: goldenrod;
 }
+.inbox {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  width: 135px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+.sentdiv {
+  margin-top: 10px;
+  cursor: pointer;
+}

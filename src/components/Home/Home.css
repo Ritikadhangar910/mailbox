@@ -29,7 +29,9 @@
   margin-bottom: 3px;
 }
 .text-email1 {
-  position: relative;
+  position: absolute;
+  top: 140px;
+  left: 355px;
 }
 .text-email2 {
   position: absolute;

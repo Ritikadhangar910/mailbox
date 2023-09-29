@@ -5,31 +5,74 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import { useNavigate, Link } from "react-router-dom";
-import { getAllmails } from "../../store/UIshow";
 import { UIshowaction } from "../../store/UIshow";
+import { getAllSendmails, getAllReceivedmails } from "../../store/UIshow";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 import "./Allmails.css";
 const Allmails = () => {
   let email = useSelector((state) => state.credential.email);
-  let allmails = useSelector((state) => state.UIshow.Allmails);
+  let receivedmails = useSelector((state) => state.UIshow.receivedmails);
+  let sendMails = useSelector((state) => state.UIshow.sendMails);
+  let recievemsg = useSelector((state) => state.UIshow.togglereceivedmsg);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   useEffect(() => {
     let mail = email.replace(/[@.]/g, "");
-    dispatch(getAllmails(mail));
+    let linkreceived = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/send.json`;
+    let linkSend = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/allsendmail.json`;
+    dispatch(getAllReceivedmails(linkreceived));
+    setInterval(() => {
+      dispatch(getAllSendmails(linkSend));
+      console.log("called");
+    }, 2000);
   }, [email, dispatch]);
+  function showrecieveItems() {
+    dispatch(UIshowaction.receivedMailHandler(true));
+  }
+  function showsentItems() {
+    dispatch(UIshowaction.receivedMailHandler(false));
+  }
+  const allmails = recievemsg ? receivedmails : sendMails;
+
   async function hideStar(item) {
     let mail = email.replace(/[@.]/g, "");
     const obj = {
       email: item.email,
+      receiver: item.receiver,
       sender: item.sender,
+      subject: item.subject,
       showstar: false,
     };
+    if (recievemsg) {
+      const getMail = receivedmails.findIndex((email) => {
+        return email.id === item.id;
+      });
+      const copyAllmails = [...receivedmails];
+      const objCopy = { ...copyAllmails[getMail] };
+      objCopy.showstar = false;
+      copyAllmails[getMail] = objCopy;
+      dispatch(UIshowaction.HidestarReceived(copyAllmails));
+    } else {
+      const getMail = sendMails.findIndex((email) => {
+        return email.id === item.id;
+      });
+      const copyAllmails = [...sendMails];
+      const objCopy = { ...copyAllmails[getMail] };
+      objCopy.showstar = false;
+      copyAllmails[getMail] = objCopy;
+      console.log(objCopy);
+      dispatch(UIshowaction.HidestarSend(copyAllmails));
+    }
     try {
+      let link;
+      if (recievemsg) {
+        link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/send/${item.id}.json`;
+      } else {
+        link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/allsendmail/${item.id}.json`;
+      }
       let response = await axios.put(
-        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/data/${item.id}.json`,
+        link,
         {
           obj,
         },
@@ -47,21 +90,32 @@ const Allmails = () => {
     } catch (err) {
       console.log("Error is", err);
     }
-    const getMail = allmails.findIndex((email) => {
-      return email.id === item.id;
-    });
-    const copyAllmails = [...allmails];
-    const objCopy = { ...copyAllmails[getMail] };
-    objCopy.showstar = false;
-    copyAllmails[getMail] = objCopy;
-    dispatch(UIshowaction.Hideshowstar(copyAllmails));
   }
   async function deleteMail(id) {
+    if (recievemsg) {
+      const copyAllmails = [...receivedmails];
+      const getMail = copyAllmails.filter((email) => {
+        return email.id !== id;
+      });
+      dispatch(UIshowaction.HidestarReceived(getMail));
+    } else {
+      const copyAllmails = [...sendMails];
+      const getMail = copyAllmails.filter((email) => {
+        return email.id !== id;
+      });
+      console.log("hidestar", getMail);
+      dispatch(UIshowaction.HidestarSend(getMail));
+    }
+
     let mail = email.replace(/[@.]/g, "");
+    let link;
+    if (recievemsg) {
+      link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/send/${id}.json`;
+    } else {
+      link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/allsendmail/${id}.json`;
+    }
     try {
-      let response = await axios.delete(
-        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/data/${id}.json`
-      );
+      let response = await axios.delete(link);
       if (response.status === 200) {
         console.log(response.data);
       } else {
@@ -70,11 +124,12 @@ const Allmails = () => {
     } catch (err) {
       console.log("Error is", err);
     }
-    const copyAllmails = [...allmails];
-    const getMail = copyAllmails.filter((email) => {
-      return email.id !== id;
-    });
-    dispatch(UIshowaction.Hideshowstar(getMail));
+  }
+  let allmailsnum = 0;
+  for (const mail of receivedmails) {
+    if (mail.showstar) {
+      allmailsnum += 1;
+    }
   }
   return (
     <>
@@ -89,12 +144,25 @@ const Allmails = () => {
             >
               Compose
             </button>
+            <div className="inbox">
+              <Button variant="outline-primary" onClick={showrecieveItems}>
+                Inbox
+              </Button>
+              <div>{allmailsnum}</div>
+            </div>
+            <div className="sentdiv">
+              <Button variant="outline-primary" onClick={showsentItems}>
+                Sent
+              </Button>
+            </div>
           </Col>
           <Col md="9">
             <Table bordered hover>
               <thead>
                 <tr>
-                  <th style={{ border: "none" }}>Sender</th>
+                  <th style={{ border: "none" }}>
+                    {!recievemsg ? "Send To" : "Received By"}
+                  </th>
                   <th style={{ border: "none" }}>Mail</th>
                 </tr>
               </thead>
@@ -107,7 +175,7 @@ const Allmails = () => {
                       ) : (
                         "  "
                       )}
-                      {item.sender}
+                      {recievemsg ? item.sender : item.receiver}
                     </td>
                     <td
                       style={{ border: "none" }}
@@ -115,7 +183,7 @@ const Allmails = () => {
                       onClick={() => hideStar(item)}
                     >
                       <Link
-                        to={`/allmails/${item.sender}`}
+                        to={`/allmails/${item.id}`}
                         style={{ color: "black", textDecoration: "none" }}
                       >
                         {item.email}

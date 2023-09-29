@@ -1,45 +1,85 @@
 import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
 const initialUI = {
-  Allmails: [],
-  showStar: [],
+  receivedmails: [],
+  sendMails: [],
+  togglereceivedmsg: true,
 };
 const UIslice = createSlice({
   name: "UIshow",
   initialState: initialUI,
   reducers: {
-    showallMails(state, action) {
-      state.Allmails = action.payload;
+    receiveallMails(state, action) {
+      state.receivedmails = action.payload;
     },
-    anothershowStar(state, action) {
-      state.showStar.push(action.payload);
+
+    HidestarReceived(state, action) {
+      state.receivedmails = action.payload;
     },
-    Hideshowstar(state, action) {
-      state.Allmails = action.payload;
+    AddsendMails(state, action) {
+      state.sendMails.push(action.payload);
+    },
+    HidestarSend(state, action) {
+      state.sendMails = action.payload;
+      console.log(action.payload, state.sendMails, "ui");
+    },
+    receivedMailHandler(state, action) {
+      state.togglereceivedmsg = action.payload;
     },
   },
 });
 export const UIshowaction = UIslice.actions;
 export default UIslice.reducer;
-export function getAllmails(mail) {
+export function getAllReceivedmails(link) {
   return async function getAllmailsThunk(dispatch, getState) {
     try {
-      let response = await axios.get(
-        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/data.json`
-      );
+      let response = await axios.get(link);
       let arr = [];
       if (response.status === 200) {
-        response = response.data;
-        const keys = Object.keys(response);
-        for (const key of keys) {
-          let item = response[key];
-          let myobj = {
-            ...item.obj,
-            id: key,
-          };
-          arr.push(myobj);
+        const data = response.data;
+        if (data !== null && data !== undefined) {
+          const keys = Object.keys(data);
+          for (const key of keys) {
+            let item = data[key];
+            let myobj = {
+              ...item.obj,
+              id: key,
+            };
+            arr.push(myobj);
+          }
+          dispatch(UIshowaction.receiveallMails(arr));
+        } else {
+          console.log("response is null");
         }
-        dispatch(UIshowaction.showallMails(arr));
+      } else {
+        console.log("Error:", response.data);
+      }
+    } catch (err) {
+      console.log("Error:", err);
+    }
+  };
+}
+export function getAllSendmails(link) {
+  return async function getAllmailsThunk(dispatch, getState) {
+    try {
+      let response = await axios.get(link);
+      let arr = [];
+      if (response.status === 200) {
+        const data = response.data;
+        if (data !== null && data !== undefined) {
+          const keys = Object.keys(data);
+          for (const key of keys) {
+            let item = data[key];
+            let myobj = {
+              ...item.obj,
+              id: key,
+            };
+            arr.push(myobj);
+          }
+          dispatch(UIshowaction.HidestarSend(arr));
+        } else {
+          console.log("response is null");
+        }
       } else {
         console.log("Error:", response.data);
       }

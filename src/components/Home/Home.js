@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import SunEditor from "suneditor-react";
 import "suneditor/dist/css/suneditor.min.css";
 import "./Home.css";
-import image from "../../images/user.png";
 import { useSelector, useDispatch } from "react-redux";
 import { UIshowaction } from "../../store/UIshow";
 import axios from "axios";
@@ -12,6 +11,7 @@ const Home = () => {
   const dispatch = useDispatch();
   const [text, setText] = useState("");
   const [sender, setSender] = useState("");
+  const [subject, setSubject] = useState("");
   function GetTextformEditor() {
     const plainText = extractPlainTextFromHTML(text);
     storeEmail(plainText);
@@ -22,28 +22,54 @@ const Home = () => {
     return doc.body.textContent || "";
   }
   async function storeEmail(text) {
-    email = email.replace(/[@.]/g, "");
+    const newsender = sender.substring(3);
+    const newemail = newsender.replace(/[@.]/g, "");
     const obj = {
       email: text,
-      sender: sender,
+      sender: email,
+      receiver: newsender,
+      subject: subject,
       showstar: true,
     };
+
     try {
       let response = await axios.post(
-        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${email}/data.json`,
+        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${newemail}/send.json`,
         {
           obj,
         },
         {
           headers: {
-            "Content-Type": "Application/json",
+            "Content-Type": "application/json",
           },
         }
       );
       if (response.status === 200) {
         console.log(response.data);
-        const sendobj = { id: response.data.name, showstar: true };
-        dispatch(UIshowaction.anothershowStar(sendobj));
+      } else {
+        console.log("Error:", response.data, response.status);
+      }
+    } catch (err) {
+      console.log("Error:", err);
+    }
+    let replaceEmail = email.replace(/[@.]/g, "");
+    try {
+      let response = await axios.post(
+        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${replaceEmail}/allsendmail.json`,
+        {
+          obj,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+        const sendobj = { id: response.data.name, ...obj };
+        dispatch(UIshowaction.AddsendMails(sendobj));
+        console.log(sendobj, "sendobj");
       } else {
         console.log("Error:", response.data, response.status);
       }
@@ -59,11 +85,20 @@ const Home = () => {
           <h2>Email Send</h2>
           <div className="mail-box">
             <small className="text-email">
-              To
-              <small className="email-body">
-                <img src={image} alt="err" height="15px" width="15px" />
-                <small className="mx-1"> {email}</small>
-              </small>
+              <textarea
+                id="plainText"
+                style={{
+                  border: "none",
+                  outline: "none",
+                  height: "20px",
+                  width: "100%",
+                  resize: "none",
+                }}
+                defaultValue={"To"}
+                onChange={(e) => {
+                  setSender(e.target.value);
+                }}
+              ></textarea>
             </small>
             <small className="text-email2">Cc/Bcc</small>
 
@@ -78,7 +113,7 @@ const Home = () => {
                   resize: "none",
                 }}
                 onChange={(e) => {
-                  setSender(e.target.value);
+                  setSubject(e.target.value);
                 }}
               ></textarea>
             </small>
