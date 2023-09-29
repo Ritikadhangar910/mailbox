@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -6,10 +6,12 @@ import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import { useNavigate, Link } from "react-router-dom";
 import { UIshowaction } from "../../store/UIshow";
-import { getAllSendmails, getAllReceivedmails } from "../../store/UIshow";
+// import { getAllSendmails, getAllReceivedmails } from "../../store/UIshow";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 import "./Allmails.css";
+import useReceivedMails from "../customHooks/useReceivedMails";
+import useSentMails from "../customHooks/useSentMails";
 const Allmails = () => {
   let email = useSelector((state) => state.credential.email);
   let receivedmails = useSelector((state) => state.UIshow.receivedmails);
@@ -17,16 +19,9 @@ const Allmails = () => {
   let recievemsg = useSelector((state) => state.UIshow.togglereceivedmsg);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useEffect(() => {
-    let mail = email.replace(/[@.]/g, "");
-    let linkreceived = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/send.json`;
-    let linkSend = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/allsendmail.json`;
-    dispatch(getAllReceivedmails(linkreceived));
-    setInterval(() => {
-      dispatch(getAllSendmails(linkSend));
-      console.log("called");
-    }, 2000);
-  }, [email, dispatch]);
+  useReceivedMails(email);
+  useSentMails(email);
+
   function showrecieveItems() {
     dispatch(UIshowaction.receivedMailHandler(true));
   }

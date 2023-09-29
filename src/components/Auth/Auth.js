@@ -8,20 +8,18 @@ import { useDispatch } from "react-redux";
 import { creadentailAction } from "../../store/credential";
 import { useNavigate } from "react-router-dom";
 function Auth() {
-  const email = useRef();
-  const pass = useRef();
+  const [emailval, setEmail] = useState("");
+  const [passval, setPass] = useState("");
   const dispatch = useDispatch();
   const confirmpass = useRef();
   const navigate = useNavigate();
-  const [errEmptyform, seterrEmptyform] = useState(false);
-  const [errpassNotMatch, seterrpassNotMatch] = useState(false);
+  const [errEmptyform, seterrEmptyform] = useState(null);
+  const [errpassNotMatch, seterrpassNotMatch] = useState(null);
   const [errAuth, seterrAuth] = useState(false);
   const [errAuthmsg, seterrAuthmsg] = useState(null);
   const [togglesignup, setTogglesignup] = useState(true);
   function AuthformSummit(e) {
     e.preventDefault();
-    let emailval = email.current.value;
-    let passval = pass.current.value;
     if (togglesignup) {
       let confirmpassval = confirmpass.current.value;
       if (passval !== confirmpassval) {
@@ -42,8 +40,6 @@ function Auth() {
     }
   }
   async function FirebaseAuthSummit() {
-    let emailval = email.current.value;
-    let passval = pass.current.value;
     let authLink = "";
     if (togglesignup) {
       authLink = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCPaaQCCEk5bOP1J4-CNBIxxwflpeCl_pE`;
@@ -103,11 +99,23 @@ function Auth() {
         <Form className={classess.form} onSubmit={AuthformSummit}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" ref={email} />
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+            />
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" ref={pass} />
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              onChange={(e) => {
+                setPass(e.target.value);
+              }}
+            />
           </Form.Group>
           {togglesignup ? (
             <Form.Group className="mb-3" controlId="formConfirmPassword">
