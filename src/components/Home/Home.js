@@ -34,7 +34,7 @@ const Home = () => {
 
     try {
       let response = await axios.post(
-        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${newemail}/send.json`,
+        `https://mailbox-be0c2-default-rtdb.firebaseio.com/${newemail}/send.json`,
         {
           obj,
         },
@@ -55,7 +55,7 @@ const Home = () => {
     let replaceEmail = email.replace(/[@.]/g, "");
     try {
       let response = await axios.post(
-        `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${replaceEmail}/allsendmail.json`,
+        `https://mailbox-be0c2-default-rtdb.firebaseio.com/${replaceEmail}/allsendmail.json`,
         {
           obj,
         },
@@ -66,10 +66,8 @@ const Home = () => {
         }
       );
       if (response.status === 200) {
-        console.log(response.data);
         const sendobj = { id: response.data.name, ...obj };
         dispatch(UIshowaction.AddsendMails(sendobj));
-        console.log(sendobj, "sendobj");
       } else {
         console.log("Error:", response.data, response.status);
       }

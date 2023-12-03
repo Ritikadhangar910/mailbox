@@ -1,4 +1,4 @@
-// import { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -6,22 +6,25 @@ import Col from "react-bootstrap/Col";
 import Table from "react-bootstrap/Table";
 import { useNavigate, Link } from "react-router-dom";
 import { UIshowaction } from "../../store/UIshow";
-// import { getAllSendmails, getAllReceivedmails } from "../../store/UIshow";
+import { getAllSendmails, getAllReceivedmails } from "../../store/UIshow";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 import "./Allmails.css";
-import useReceivedMails from "../customHooks/useReceivedMails";
-import useSentMails from "../customHooks/useSentMails";
 const Allmails = () => {
   let email = useSelector((state) => state.credential.email);
   let receivedmails = useSelector((state) => state.UIshow.receivedmails);
   let sendMails = useSelector((state) => state.UIshow.sendMails);
+  console.log(sendMails, "sendMAILS");
   let recievemsg = useSelector((state) => state.UIshow.togglereceivedmsg);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useReceivedMails(email);
-  useSentMails(email);
-
+  useEffect(() => {
+    let mail = email.replace(/[@.]/g, "");
+    let linkreceived = `https://mailbox-be0c2-default-rtdb.firebaseio.com/${mail}/send.json`;
+    let linkSend = `https://mailbox-be0c2-default-rtdb.firebaseio.com/${mail}/allsendmail.json`;
+    dispatch(getAllReceivedmails(linkreceived));
+    dispatch(getAllSendmails(linkSend));
+  }, [email, dispatch]);
   function showrecieveItems() {
     dispatch(UIshowaction.receivedMailHandler(true));
   }
@@ -62,9 +65,9 @@ const Allmails = () => {
     try {
       let link;
       if (recievemsg) {
-        link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/send/${item.id}.json`;
+        link = `https://mailbox-be0c2-default-rtdb.firebaseio.com/${mail}/send/${item.id}.json`;
       } else {
-        link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/allsendmail/${item.id}.json`;
+        link = `https://mailbox-be0c2-default-rtdb.firebaseio.com/${mail}/allsendmail/${item.id}.json`;
       }
       let response = await axios.put(
         link,
@@ -105,9 +108,9 @@ const Allmails = () => {
     let mail = email.replace(/[@.]/g, "");
     let link;
     if (recievemsg) {
-      link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/send/${id}.json`;
+      link = `https://mailbox-be0c2-default-rtdb.firebaseio.com/${mail}/send/${id}.json`;
     } else {
-      link = `https://mailboxpost-85c54-default-rtdb.firebaseio.com/${mail}/allsendmail/${id}.json`;
+      link = `https://mailbox-be0c2-default-rtdb.firebaseio.com/${mail}/allsendmail/${id}.json`;
     }
     try {
       let response = await axios.delete(link);

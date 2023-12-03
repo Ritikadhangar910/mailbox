@@ -36,6 +36,7 @@ function Auth() {
     }
 
     if (!errEmptyform && !errpassNotMatch) {
+      console.log(errEmptyform, errpassNotMatch, "err");
       FirebaseAuthSummit();
     }
   }
